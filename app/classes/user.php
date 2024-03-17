@@ -1,16 +1,19 @@
 <?php
-namespace login\classes;
+namespace Login\classes\user;
+// Author: Ayoub
 
-use login\classes\database;
+use Login\classes\Database;
+use PDO;
 
 session_start();
 
 class User {
     private $db;
+    private $username; 
 
     public function __construct() {
         try {
-            $this->db = new PDO('mysql:host=localhost;dbname=login2', 'root');
+            $this->db = new PDO('mysql:host=localhost;dbname=login', 'root', ''); // Assuming the password is empty for localhost
             $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             exit("Error: " . $e->getMessage());
@@ -18,11 +21,12 @@ class User {
     }
 
     public function registerUser($username, $password, $role = 'gebruiker') {
-        $sql = "INSERT INTO users (username, password, role) VALUES (:username, :password, :role)";
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT); 
+        $sql = "INSERT INTO users (username, password, role) VALUES (:username, :hashedPassword, :role)";
         $stmt = $this->db->prepare($sql);
         
         $stmt->bindValue(':username', $username);
-        $stmt->bindValue(':password', password_hash($password, PASSWORD_DEFAULT));
+        $stmt->bindValue(':hashedPassword', $hashedPassword); 
         $stmt->bindValue(':role', $role);
 
         try {
@@ -45,6 +49,7 @@ class User {
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['username'] = $username;
             $_SESSION['role'] = $user['role'];
+            $this->username = $username; 
             return true;
         } else {
             return false;
@@ -81,7 +86,11 @@ class User {
     }
 
     public function ShowUser() {
-        echo "Username: " . $this->username;
+        if (isset($this->username)) { 
+            echo "username: " . $this->username;
+        } else {
+            echo "No username set";
+        }
     }
     
     public function Logout() {

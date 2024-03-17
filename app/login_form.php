@@ -7,14 +7,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Registration</title>
+    <title>Login</title>
 </head>
 <body>
     <h3>PHP - PDO Login and Registration</h3>
     <hr/>
 
     <form action="" method="POST">    
-        <h4>Register here...</h4>
+        <h4>Login here...</h4>
         <hr>
         
         <label>Username</label>
@@ -23,9 +23,9 @@
         <label>Password</label>
         <input type="password" name="password" />
         <br>
-        <button type="submit" name="register-btn">Register</button>
+        <button type="submit" name="login-btn">Login</button>
         <br>
-        <a href="login_form.php">Login</a>
+        <a href="register_form.php">Registration</a>
     </form>
         
 </body>
@@ -33,16 +33,20 @@
 
 <?php
 
-if(isset($_POST['register-btn'])){
-require_once 'classes/user.php';
-
+if(isset($_POST['login-btn'])){
+    require_once('classes/user.php');
     $user = new User();
 
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $user->RegisterUser($username, $password);
-    echo "<script>alert('User registered')</script>";
+    if($user->LoginUser($username, $password)) {
+        $_SESSION['username'] = $username;
+        header("location: index.php");
+        exit();
+    } else {
+        echo "<script>alert('Login failed')</script>";
+    }
 }
 
 ?>
